@@ -59,6 +59,8 @@ private[websocket] class WebsocketNettytHandler[T : MessageFormat](
         case msg: CloseWebSocketFrame =>
           try {handler.onClose(())} catch {case NonFatal(ex) => handler.reportFailure(ex)}
           ch.close()
+        case msg: PingWebSocketFrame =>
+          ch.write(new PongWebSocketFrame(msg.content().retain()))
         case msg: FullHttpResponse =>
           if (!handshaker.isHandshakeComplete) {
             try {
